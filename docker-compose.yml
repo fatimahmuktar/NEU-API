@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SESSION_SECRET=${SESSION_SECRET:-change-this-in-production}
+      - DATABASE_URL=postgresql://neu_user:neu_password@db:5432/neu_api
+      - RESEND_API_KEY=${RESEND_API_KEY}
+    depends_on:
+      - db
+    networks:
+      - neu-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: neu_user
+      POSTGRES_PASSWORD: neu_password
+      POSTGRES_DB: neu_api
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - neu-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  neu-network:
+    driver: bridge
